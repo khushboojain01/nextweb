@@ -3,7 +3,7 @@
 {% block content %}
 {% include 'partials/modal.html' %}
 
-<div class="bg-gray-50 min-h-screen">
+<div class="bg-gray-50 min-h-screen p-6">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
     <!-- Header Section with improved styling -->
     <div class="mb-10">
@@ -43,9 +43,9 @@
                   name="content" 
                   id="post-content"
                   rows="4"
-                  class="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 resize-none transition duration-200"
+                  class="w-full rounded-lg border border-gray-300 h-96 shadow-sm p-2 focus:border-indigo-500 focus:ring-indigo-500 resize-none transition duration-200"
                   placeholder="What's on your mind?"
-                  maxlength="1000"
+                  maxlength="10000"
                   required></textarea>
             
                 <small class="text-gray-500">Max 1000 characters.</small>
@@ -72,29 +72,32 @@
             
               <!-- Submit Buttons -->
               <div class="mt-6 flex flex-wrap gap-4">
-                <button 
-                  type="submit" 
-                  name="platform" 
-                  value="twitter"
-                  formaction="{% url 'twitter_post' %}"
-                  class="inline-flex items-center px-5 py-2.5 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-black hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-700 transition duration-200">
-                  <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                    <path d="M17.6 3H21L14.4 10.4L22 21H15.6L11 14.6L5.8 21H2.4L9.4 13.2L2 3H8.6L13.6 9.7L17.6 3Z"></path>
-                  </svg>
-                  Post to X
-                </button>
-                
-                <button 
-                  type="submit" 
-                  name="platform" 
-                  value="linkedin"
-                  formaction="{% url 'linkedin-post' %}"
-                  class="inline-flex items-center px-5 py-2.5 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-blue-700 hover:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-200">
-                  <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.32 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.79M6.88 8.56a1.68 1.68 0 0 0 1.68-1.68c0-.93-.75-1.69-1.68-1.69a1.69 1.69 0 0 0-1.69 1.69c0 .93.76 1.68 1.69 1.68m1.39 9.94v-8.37H5.5v8.37h2.77z"></path>
-                  </svg>
-                  Post to LinkedIn
-                </button>
+                {% if platforms.twitter.is_connected %}
+                  <button 
+                    type="submit" 
+                    name="platform" 
+                    value="twitter"
+                    formaction="{% url 'twitter_post' %}"
+                    class="inline-flex items-center px-5 py-2.5 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-black hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-700 transition duration-200">
+                    <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                      <path d="M17.6 3H21L14.4 10.4L22 21H15.6L11 14.6L5.8 21H2.4L9.4 13.2L2 3H8.6L13.6 9.7L17.6 3Z"></path>
+                    </svg>
+                    Post to X
+                  </button>
+                {% endif %}
+                {% if platforms.linkedin.is_connected %}
+                  <button 
+                    type="submit" 
+                    name="platform" 
+                    value="linkedin"
+                    formaction="{% url 'linkedin-post' %}"
+                    class="inline-flex items-center px-5 py-2.5 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-blue-700 hover:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-200">
+                    <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.32 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.79M6.88 8.56a1.68 1.68 0 0 0 1.68-1.68c0-.93-.75-1.69-1.68-1.69a1.69 1.69 0 0 0-1.69 1.69c0 .93.76 1.68 1.69 1.68m1.39 9.94v-8.37H5.5v8.37h2.77z"></path>
+                    </svg>
+                    Post to LinkedIn
+                  </button>
+                {% endif %}
               </div>
             </form> 
 

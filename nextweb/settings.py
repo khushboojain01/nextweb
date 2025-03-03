@@ -10,7 +10,6 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 import os
-os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
 
 # Rest of your settings...
 from pathlib import Path
@@ -28,8 +27,8 @@ SECRET_KEY = 'django-insecure-rgc2$e0=vmonv17dc(!6fg!yg6x^g2p^v0-9+89s*o-jacek7c
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
-
+ALLOWED_HOSTS = ["nextweb-8ydu.onrender.com","https://nextweb-8ydu.onrender.com"]
+CSRF_TRUSTED_ORIGINS = ["https://nextweb-8ydu.onrender.com"]
 
 # Application definition
 
@@ -99,13 +98,22 @@ WSGI_APPLICATION = 'nextweb.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
+# Add these at the top of your settings.py
+from nextweb.secret import DATABASE_URL
+from urllib.parse import urlparse
+
+tmpPostgres = urlparse(DATABASE_URL)
+
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': tmpPostgres.path.replace('/', ''),
+        'USER': tmpPostgres.username,
+        'PASSWORD': tmpPostgres.password,
+        'HOST': tmpPostgres.hostname,
+        'PORT': 5432,
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
@@ -163,3 +171,9 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Secure
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+SECURE_SSL_REDIRECT = False  # Render already handles HTTPS
+CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = True

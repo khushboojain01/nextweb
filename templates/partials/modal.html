@@ -1,6 +1,6 @@
 <script src="https://unpkg.com/htmx.org@2.0.4" integrity="sha384-HGfztofotfshcF7+8n44JQL2oJmowVChPTg48S+jvZoztPfvwD79OC/LTtG6dMp+" crossorigin="anonymous"></script>
 
-<dialog id="dialogModal" class="p-6 bg-white rounded-lg shadow-lg w-96">
+<dialog id="dialogModal" class="p-6 bg-white rounded-lg shadow-lg w-full max-w-screen-md">
     <form 
         method="post"
         hx-post="{% url 'generate_social_post' %}" 
@@ -16,7 +16,6 @@
         <div>
             <label for="postIdea" class="block text-sm font-medium text-gray-600">Short Post Idea</label>
             <input type="text" id="postIdea" name="postIdea" required 
-                value="Utilizing LLMs for Data Mining"
                 class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
         </div>
 
@@ -24,7 +23,6 @@
         <div>
             <label for="purpose" class="block text-sm font-medium text-gray-600">Purpose</label>
             <input type="text" id="purpose" name="purpose" required
-                value="Event Announcement"
                 class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
         </div>
 
@@ -37,7 +35,6 @@
                 <option value="twitter">Twitter</option>
                 <option value="instagram">Instagram</option>
                 <option value="blog">Blog</option>
-                <option value="website">Website</option>
             </select>
         </div>
 
@@ -45,7 +42,6 @@
         <div>
             <label for="role" class="block text-sm font-medium text-gray-600">Your Role</label>
             <input type="text" id="role" name="role" required
-                value="Speaker"
                 class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
         </div>
 
@@ -53,7 +49,6 @@
         <div>
             <label for="industry" class="block text-sm font-medium text-gray-600">Industry</label>
             <input type="text" id="industry" name="industry" required
-                value="AI"
                 class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
         </div>
 
@@ -71,8 +66,8 @@
 
         <!-- Word Count -->
         <div>
-            <label for="wordCount" class="block text-sm font-medium text-gray-600">Word Count</label>
-            <input type="number" id="wordCount" name="wordCount" required min="50" max="500"
+            <label for="wordCount" class="block text-sm font-medium text-gray-600">Approximate Character Count (will be overridden by platform specific limits)</label>
+            <input type="number" id="wordCount" name="wordCount" required min="50" max="1000"
                 value="350"
                 class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
         </div>
@@ -83,7 +78,7 @@
                 class="px-4 py-2 text-gray-600 border rounded-lg hover:bg-gray-100">
                 Cancel
             </button>
-            <button type="submit"
+            <button type="submit" id="generateButton"
                 class="px-4 py-2 text-white bg-blue-600 rounded-lg hover:bg-blue-700">
                 Generate
             </button>
@@ -93,6 +88,24 @@
 
 <script>
     document.body.addEventListener("htmx:afterRequest", function(event) {
+        document.getElementById("dialogModal").close();
+    });
+</script>
+
+<script>
+    document.body.addEventListener("htmx:beforeRequest", function(event) {
+        let button = document.getElementById("generateButton");
+        button.disabled = true;
+        button.innerHTML = `<svg class="animate-spin h-5 w-5 mr-2 inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                            </svg> Generating...`;
+    });
+
+    document.body.addEventListener("htmx:afterRequest", function(event) {
+        let button = document.getElementById("generateButton");
+        button.disabled = false;
+        button.innerHTML = "Generate";
         document.getElementById("dialogModal").close();
     });
 </script>

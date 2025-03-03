@@ -421,26 +421,37 @@ class TwitterLogoutView(View):
     Disconnects Twitter from the user account by removing the OAuth token
     """
     def get(self, request):
+        print("TwitterLogoutView accessed")
+
         # Manual authentication check
-        user_id = request.session.get('user_id')
+        user_id = request.user.id
+        print(f"Session user_id: {user_id}")
+
         if not user_id:
+            print("User not logged in. Redirecting to login.")
             return redirect('login')
-        
+
         from django.contrib.auth.models import User
         try:
             user = User.objects.get(id=user_id)
+            print(f"User found: {user}")
         except User.DoesNotExist:
+            print("User does not exist. Redirecting to login.")
             return redirect('login')
-        
+
         try:
             user_profile = UserProfile.objects.get(user=user)
+            print(f"UserProfile found: {user_profile}")
         except UserProfile.DoesNotExist:
+            print("UserProfile does not exist. Redirecting to login.")
             return redirect('login')
-        
+
         # Delete Twitter OAuth tokens
-        OAuthToken.objects.filter(
+        deleted_count, _ = OAuthToken.objects.filter(
             user=user_profile,
             provider='twitter'
         ).delete()
-        
+        print(f"Deleted {deleted_count} OAuth tokens for user {user_profile}")
+
+        print("Redirecting to dashboard.")
         return redirect('dashboard')

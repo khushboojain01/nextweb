@@ -1,11 +1,12 @@
 from django.http import HttpResponse
 from huggingface_hub import InferenceClient
 from nextweb.secret import HUGGINGFACE_API_KEY
+import markdown
+from bs4 import BeautifulSoup
 
 client = InferenceClient(api_key=HUGGINGFACE_API_KEY)
 
-
-def generate_detailed_prompt(user_input: str, purpose: str, platform: str, role: str, industry: str, post_type: str) -> str:
+def generate_detailed_prompt(user_input: str, purpose: str, platform: str, role: str, industry: str, post_type: str, word_count:int) -> str:
     """Expands a short user input into a structured content brief suitable for various platforms and post types."""
     messages = [
         {"role": "system", "content":
@@ -34,20 +35,20 @@ Ensure that the output is **clear, well-structured, and tailored for the chosen 
     ]
     
     response = client.chat_completion(
-        model="mistralai/Mixtral-8x7B-Instruct-v0.1",
+        model="Qwen/Qwen2.5-72B-Instruct",
         messages=messages,
         temperature=0.7,
         max_tokens=1024
     )
-    
-    return response["choices"][0]["message"]["content"].strip()
+    detailed_prompt = response["choices"][0]["message"]["content"].strip()+f"This is supposed to be posted to {platform}. Keep the word count around {int(word_count/5)}. Make good use of emojis."
+    return detailed_prompt
 
 def generate_final_post(detailed_prompt: str, platform: str, post_type: str, word_count: int) -> str:
     """Generates a high-quality social media post tailored for the given platform and post type."""
     messages = [
         {"role": "system", "content":
          f"""
-You are an expert content writer specializing in **engaging, professional, and human-like social media posts** for different platforms.
+You are an expert content writer specializing in **engaging, professional, and human-like social media posts** for {platform}.
 
 ### **Instructions**
 - Use the structured prompt to craft a compelling post.
@@ -68,21 +69,26 @@ You are an expert content writer specializing in **engaging, professional, and h
 3️⃣ **Call to Action (CTA)** (encourage engagement, sign-ups, comments).
 4️⃣ **Relevant Hashtags & Mentions** (if applicable).
 
-Ensure the post feels **authentic, platform-optimized, and valuable**.
-
-Keep the post approximately **{word_count} words long**.
+Ensure the post feels **authentic, platform-optimized, and valuable**. The post language is strictly English.
          """},
         {"role": "user", "content": detailed_prompt}
     ]
     
     response = client.chat_completion(
-        model="mistralai/Mixtral-8x7B-Instruct-v0.1",
+        model="Qwen/Qwen2.5-72B-Instruct",
         messages=messages,
         temperature=0.8,
-        max_tokens=1024  # Approximate word-to-token ratio
+        max_tokens=word_count
     )
 
     return response["choices"][0]["message"]["content"].strip()
+
+def markdown_to_plaintext(md_text):
+    # Convert Markdown to HTML
+    html = markdown.markdown(md_text)
+    # Remove HTML tags and get plain text
+    soup = BeautifulSoup(html, "html.parser")
+    return soup.get_text()
 
 def generate_social_post(request):
     if request.method == "POST":
@@ -95,11 +101,16 @@ def generate_social_post(request):
         post_type = request.POST.get("postType", "Personal")
         word_count = int(request.POST.get("wordCount", 350))
 
-        detailed_prompt = generate_detailed_prompt(post_idea, purpose, platform, role, industry, post_type)
+        word_counts = {"twitter":280, "linkedin": 3000, "instagram": 2200, "blog": 10000}
+        max_word_count = word_counts.get(platform, 3000)
+        word_count = min(word_count, max_word_count)
+
+        detailed_prompt = generate_detailed_prompt(post_idea, purpose, platform, role, industry, post_type, word_count)
     
         final_post = generate_final_post(detailed_prompt, platform, post_type, word_count)
+        final_post_plain = markdown_to_plaintext(final_post)
 
         # Ensure the response is plain text so HTMX can replace the textarea content
-        return HttpResponse(final_post.strip(), content_type="text/plain")
+        return HttpResponse(final_post_plain, content_type="text/plain")
 
     return HttpResponse("Invalid Request", status=400)

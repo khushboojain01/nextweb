@@ -1,0 +1,18 @@
+from dotenv import load_dotenv
+import os
+
+# Linkedin API Settings
+LINKEDIN_CLIENT_ID = os.getenv("LINKEDIN_CLIENT_ID")
+LINKEDIN_CLIENT_SECRET = os.getenv("LINKEDIN_CLIENT_SECRET")
+LINKEDIN_REDIRECT_URI = os.getenv("LINKEDIN_REDIRECT_URI")
+
+#HuggingFace-api
+HUGGINGFACE_API_KEY= os.getenv("HUGGINGFACE_API_KEY")
+
+#Twitter credentials
+TWITTER_CLIENT_ID = os.getenv("TWITTER_CLIENT_ID")
+TWITTER_CLIENT_SECRET = os.getenv("TWITTER_CLIENT_SECRET")
+TWITTER_REDIRECT_URI = os.getenv("TWITTER_REDIRECT_URI")
+
+#Neon Postgresql
+DATABASE_URL = os.getenv("DATABASE_URL")
